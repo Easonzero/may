@@ -152,6 +152,18 @@ impl Semphore {
         }
     }
 
+    /// increment the semphore value with n
+    /// and would wakeup a thread/coroutine that is calling `wait`
+    pub fn post_n(&self, n: isize) {
+        let cnt = self.cnt.fetch_add(n, Ordering::SeqCst);
+        assert!(cnt < ::std::isize::MAX);
+
+        // try to wakeup one waiter first
+        if cnt < 0 {
+            self.wakeup_one();
+        }
+    }
+
     /// return the current semphore value
     pub fn get_value(&self) -> usize {
         let cnt = self.cnt.load(Ordering::SeqCst);
