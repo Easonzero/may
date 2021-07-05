@@ -59,15 +59,12 @@ impl Semphore {
 
     #[inline]
     fn wakeup_one(&self) {
-        self.to_wake
-            .pop()
-            .map(|w| {
-                w.unpark();
-                if w.take_release() {
-                    self.post();
-                }
-            })
-            .expect("got null blocker!");
+        self.to_wake.pop().map(|w| {
+            w.unpark();
+            if w.take_release() {
+                self.post();
+            }
+        });
     }
 
     // return false if timeout
